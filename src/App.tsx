@@ -30,6 +30,15 @@ import LunarCycle from './components/LunarCycle';
 import BiorhythmView from './components/BiorhythmView';
 import UserDashboardPortal from './components/UserDashboardPortal';
 import AdminPanel from './components/AdminPanel';
+import { 
+  saveProfileToDatabase, 
+  loadProfileFromDatabase, 
+  saveExtraMapToDatabase, 
+  deleteExtraMapFromDatabase, 
+  loadExtraMapsFromDatabase, 
+  saveDreamToDatabase, 
+  loadDreamsFromDatabase 
+} from './lib/firebase';
 import { generatePersonalizedProsperityMap } from './components/prosperityEngine';
 import { generateDailyPrediction } from './components/dailyPredictionsEngine';
 import { 
@@ -952,6 +961,19 @@ export default function App() {
 
       setDreamsHistory([newEntry, ...dreamsHistory]);
       setSelectedDreamDisplay(newEntry);
+      
+      if (isLoggedIn && loggedEmail) {
+        saveDreamToDatabase(loggedEmail, {
+          id: newEntry.id,
+          userId: loggedEmail,
+          title: newEntry.description.slice(0, 30) + "...",
+          text: newEntry.description,
+          interpretation: newEntry.interpretation || "",
+          sentiment: "Celeste",
+          date: new Date().toISOString()
+        }).catch(console.warn);
+      }
+
       pushRealNotification(`Você decodificou um sonho no seu Cofre de Sonhos com a ajuda de Orbia (+40 pontos)! 🌀`);
       
       // Clear inputs
@@ -2172,6 +2194,8 @@ export default function App() {
                           dailyMissions={dailyMissions}
                           setDailyMissions={setDailyMissions}
                           dreamsHistory={dreamsHistory}
+                          areaSubTab={areaSubTab}
+                          setAreaSubTab={setAreaSubTab}
                         />
 
                         {/* Deactivated legacy subtabs */}
@@ -2943,15 +2967,28 @@ export default function App() {
                                 <form onSubmit={(e) => {
                                   e.preventDefault();
                                   if (!extraName || !extraDate) return;
-                                  const nextExtraArr = [...extraMaps, {
+                                  const newExtraObj = {
                                     id: `extra_${Date.now()}`,
                                     name: extraName,
                                     birthDate: extraDate,
                                     birthTime: extraTime || "12:00",
                                     birthCity: extraCity
-                                  }];
+                                  };
+                                  const nextExtraArr = [...extraMaps, newExtraObj];
                                   setExtraMaps(nextExtraArr);
                                   
+                                  if (isLoggedIn && loggedEmail) {
+                                    saveExtraMapToDatabase(loggedEmail, {
+                                      id: newExtraObj.id,
+                                      userId: loggedEmail,
+                                      label: newExtraObj.name,
+                                      birthDate: newExtraObj.birthDate,
+                                      birthTime: newExtraObj.birthTime,
+                                      birthCity: newExtraObj.birthCity,
+                                      createdAt: new Date().toISOString()
+                                    }).catch(console.warn);
+                                  }
+
                                   // Reset inputs
                                   setExtraName('');
                                   setExtraDate('');
@@ -3058,7 +3095,12 @@ export default function App() {
                                         </button>
                                         <button
                                           type="button"
-                                          onClick={() => setExtraMaps(extraMaps.filter(ex => ex.id !== m.id))}
+                                          onClick={() => {
+                                            setExtraMaps(extraMaps.filter(ex => ex.id !== m.id));
+                                            if (isLoggedIn && loggedEmail) {
+                                              deleteExtraMapFromDatabase(loggedEmail, m.id).catch(console.warn);
+                                            }
+                                          }}
                                           className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-405 border border-rose-500/25 rounded-lg hover:text-rose-400 transition"
                                           title="Deletar Mapa Extra"
                                         >

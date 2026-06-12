@@ -75,6 +75,8 @@ interface UserDashboardPortalProps {
   }>>>;
   onRequestCreateMap?: () => void;
   dreamsHistory?: any[];
+  areaSubTab?: any;
+  setAreaSubTab?: any;
 }
 
 export default function UserDashboardPortal({
@@ -84,7 +86,9 @@ export default function UserDashboardPortal({
   dailyMissions,
   setDailyMissions,
   onRequestCreateMap,
-  dreamsHistory = []
+  dreamsHistory = [],
+  areaSubTab: propAreaSubTab,
+  setAreaSubTab: propSetAreaSubTab
 }: UserDashboardPortalProps) {
   const userFirstName = user?.name ? user.name.split(' ')[0] : 'Viajante';
   const zodiacSign = getZodiacSign(user?.birthDate);
@@ -108,12 +112,10 @@ export default function UserDashboardPortal({
     new Date()
   );
 
-  // Navigation tabs inside User Portal
-  const [areaSubTab, setAreaSubTab] = useState<
-    'universo_mostrando' | 'radar' | 'oportunidades_hoje' | 'painel_mes' | 
-    'calendario' | 'cores' | 'amuletos' | 'mensagem' | 'prosperidade' | 
-    'amor' | 'relacionamentos' | 'compatibilidade_social' | 'desenvolvimento' | 'sonhos' | 'energia_casa'
-  >('universo_mostrando');
+  // Navigation tabs inside User Portal - synced securely with parent Context
+  const [localAreaSubTab, setLocalAreaSubTab] = useState<any>('universo_mostrando');
+  const areaSubTab = propAreaSubTab !== undefined ? propAreaSubTab : localAreaSubTab;
+  const setAreaSubTab = propSetAreaSubTab !== undefined ? propSetAreaSubTab : setLocalAreaSubTab;
 
   const [activeCalendarFilter, setActiveCalendarFilter] = useState<string>('todos');
   const [selectedOpportunityArea, setSelectedOpportunityArea] = useState<string>('dinheiro');
@@ -572,7 +574,7 @@ export default function UserDashboardPortal({
       
         {/* 1. LEFT SIDEBAR NAVIGATION OR MOBILE DROPDOWN */}
         <div className="lg:col-span-4 xl:col-span-3 space-y-4">
-          
+
           {/* Mobile Dropdown Category Selector */}
           <div className="lg:hidden animate-in fade-in duration-300">
             <label className="block text-[10px] font-mono text-slate-500 mb-1.5 uppercase font-black tracking-wide">
@@ -586,6 +588,10 @@ export default function UserDashboardPortal({
               >
                 <optgroup label="🌌 Revelação Semanal">
                   <option value="universo_mostrando">🪐 Veja o que o universo quer te mostrando</option>
+                </optgroup>
+                <optgroup label="🏆 Práticas & Evolução">
+                  <option value="missao">🏅 Missões do Portal</option>
+                  <option value="amuletos">🔮 Símbolos & Amuletos</option>
                 </optgroup>
                 <optgroup label="📈 Sinais & Oportunidades do Dia">
                   <option value="radar">⚡ Radar do Dia</option>
@@ -628,6 +634,13 @@ export default function UserDashboardPortal({
                   group: "Oráculo de Entrada",
                   items: [
                     { id: 'universo_mostrando', label: 'Elias & Sinais', icon: Eye, color: 'text-purple-400', bg: 'hover:bg-purple-500/5' }
+                  ]
+                },
+                {
+                  group: "Práticas & Evolução",
+                  items: [
+                    { id: 'missao', label: 'Missões do Portal', icon: Award, color: 'text-indigo-400', bg: 'hover:bg-indigo-500/5' },
+                    { id: 'amuletos', label: 'Símbolos & Amuletos', icon: ShieldCheck, color: 'text-emerald-400', bg: 'hover:bg-emerald-500/5' }
                   ]
                 },
                 {

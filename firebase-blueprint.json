@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores consolidated astro-numerology profile and premium parameters of the registered users.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "description": "Owner email address" },
+        "name": { "type": "string", "description": "Full name" },
+        "birthDate": { "type": "string", "description": "Birth date in YYYY-MM-DD" },
+        "birthTime": { "type": "string", "description": "Birth time in HH:MM" },
+        "birthCity": { "type": "string", "description": "City of birth" },
+        "profilePhoto": { "type": "string", "description": "Base64 or URL profile photo" },
+        "isPremium": { "type": "boolean", "description": "True if profile has unlocked unlimited celestial areas" },
+        "hasCreatedMap": { "type": "boolean", "description": "True if initial birth details sintonized correctly" },
+        "scorePoints": { "type": "integer", "description": "Collected stellar points from practices and daily activities" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["email", "name", "birthDate", "birthCity", "hasCreatedMap"]
+    },
+    "DreamLog": {
+      "title": "Celestial Dream Interpretation",
+      "description": "Holds the history of dreams interpreted for a active user profile.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique record identifier" },
+        "userId": { "type": "string", "description": "Subscribed user UID or email reference" },
+        "title": { "type": "string", "description": "Dream short synopsis" },
+        "text": { "type": "string", "description": "Full details typed by user" },
+        "interpretation": { "type": "string", "description": "Elias angelical and cosmic reading details" },
+        "sentiment": { "type": "string", "description": "Dynamic emotional vibration matching" },
+        "date": { "type": "string", "format": "date-time", "description": "Submission date time" }
+      },
+      "required": ["id", "userId", "title", "text", "interpretation", "date"]
+    },
+    "AstralExtraMap": {
+      "title": "Extra Astrological Sincronic Map",
+      "description": "Allows storing and reloading extra relational maps.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique extra map identifier" },
+        "userId": { "type": "string", "description": "User UID who generated this extra mapping" },
+        "label": { "type": "string", "description": "Person name or relationship label (e.g. Sócio João)" },
+        "birthDate": { "type": "string", "description": "Associated birthdate" },
+        "birthTime": { "type": "string", "description": "Associated birth time" },
+        "birthCity": { "type": "string", "description": "Associated birth city" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Generation timestamp" }
+      },
+      "required": ["id", "userId", "label", "birthDate", "birthCity", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User accounts and profile states indexed by uid or unique identifier key."
+    },
+    "/users/{userId}/dreams/{dreamId}": {
+      "schema": "DreamLog",
+      "description": "Sub-collection isolated for user personalized dream log interpretations."
+    },
+    "/users/{userId}/extraMaps/{mapId}": {
+      "schema": "AstralExtraMap",
+      "description": "Sub-collection of customized partner or affinity extra maps sintonized by this user."
+    }
+  }
+}
